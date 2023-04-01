@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "./App.css";
 
-// fake data generator
-const getItems = (count, offset = 0) =>
+
+const getDatas = (count, offset = 0) =>
   Array.from({ length: count }, (v, k) => k).map((k) => ({
     id: `Row-${k + offset}`,
     content: `Row - ${k + offset}`,
@@ -31,7 +31,7 @@ const move = (source, destination, droppableSource, droppableDestination) => {
 };
 
 function App() {
-  const [state, setState] = useState([getItems(5), getItems(1, 5)]);
+  const [state, setState] = useState([getDatas(15), getDatas(5, 15)]);
 
   function onDragEnd(result) {
     const { source, destination } = result;

@@ -1,0 +1,55 @@
+.App {
+  text-align: center;
+}
+.draggable-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr 4fr);
+  grid-template-rows: 1fr;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  }
+.grid-item{
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: flex-start;
+  flex-direction: column;
+}
+.grid-item button {
+  margin: 8px;
+  padding: 10px;
+  background-color: lightblue;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.characters {
+  list-style: none;
+  padding-left: 0;
+  margin: 10px;
+}
+
+.characters li {
+  display: flex;
+  align-items: center;
+  border: solid 2px #d0d0d0;
+  border-radius: .2em;
+  margin-bottom: 1em;
+  flex-direction: row;
+}
+
+.characters p {
+  max-width: none;
+  font-weight: bold;
+  margin: 5px;
+}
+
+.characters-thumb {
+  overflow: hidden;
+  flex-shrink: 0;
+  width: 2em;
+  height: 2em;
+  background-color: #e8e8e8;
+  padding: .5em;
+  margin-right: .5em;
+}

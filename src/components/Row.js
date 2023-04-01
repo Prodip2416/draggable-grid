@@ -4,7 +4,7 @@ import { Draggable } from "react-beautiful-dnd";
 const Row = ({ rows }) => {
   return (
     <React.Fragment>
-      {rows.map(({ id, name, thumb }, index) => {
+      {rows.map(({ id, content }, index) => {
         return (
           <Draggable key={id} draggableId={id} index={index}>
             {(provided) => (
@@ -14,7 +14,7 @@ const Row = ({ rows }) => {
                 {...provided.dragHandleProps}
               >
                 <div className="characters-thumb"></div>
-                <p>{name}</p>
+                <p>{content}</p>
               </li>
             )}
           </Draggable>

@@ -1,75 +1,129 @@
 import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "./App.css";
-import Row from "./components/Row";
 
-const myArray = [
-  {
-    id: "1",
-    name: "Row - 1",
-  },
-  {
-    id: "2",
-    name: "Row - 2",
-  },
-  {
-    id: "3",
-    name: "Row - 3",
-  },
-  {
-    id: "4",
-    name: "Row - 4",
-  },
-];
+// fake data generator
+const getItems = (count, offset = 0) =>
+  Array.from({ length: count }, (v, k) => k).map((k) => ({
+    id: `Row-${k + offset}`,
+    content: `Row - ${k + offset}`,
+  }));
+
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+  return result;
+};
+
+const move = (source, destination, droppableSource, droppableDestination) => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+  const [removed] = sourceClone.splice(droppableSource.index, 1);
+
+  destClone.splice(droppableDestination.index, 0, removed);
+
+  const result = {};
+  result[droppableSource.droppableId] = sourceClone;
+  result[droppableDestination.droppableId] = destClone;
+
+  return result;
+};
 
 function App() {
-  const [rows, updateRows] = useState(myArray);
+  const [state, setState] = useState([getItems(5), getItems(1, 5)]);
 
-  function handleOnDragEnd(result) {
-    if (!result.destination) return;
+  function onDragEnd(result) {
+    const { source, destination } = result;
 
-    const items = Array.from(rows);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    updateRows(items);
+    // dropped outside the list
+    if (!destination) {
+      return;
+    }
+    const sInd = +source.droppableId;
+    const dInd = +destination.droppableId;
+
+    if (sInd === dInd) {
+      const items = reorder(state[sInd], source.index, destination.index);
+      const newState = [...state];
+      newState[sInd] = items;
+      setState(newState);
+    } else {
+      const result = move(state[sInd], state[dInd], source, destination);
+      const newState = [...state];
+      newState[sInd] = result[sInd];
+      newState[dInd] = result[dInd];
+
+      setState(newState.filter((group) => group.length));
+    }
   }
-  const handleGridRow = () => {
-    const items = Array.from(rows);
-    items.splice(items.length + 1, 0, {
-      id: items.length + 1?.toString(),
-      name: `Row - ${items.length + 1}`,
+  const handleRowAdd = () => {
+    const prevState = [...state];
+    const prevStateLength = state[0]?.length + state[1]?.length;
+    prevState[0].push({
+      id: `Row-${prevStateLength}`,
+      content: `Row - ${prevStateLength}`,
     });
-    updateRows(items);
+    setState(prevState);
+  };
+  const handleItemClick = (item) => {
+    alert("Id= " + item?.id);
   };
 
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>Draggable Grid</h1>
-        <DragDropContext onDragEnd={handleOnDragEnd}>
-          <section className="draggable-grid">
-            <div className="grid-item">
-              <button onClick={handleGridRow}>Add Row</button>
-              <button>Add Column</button>
-            </div>
-            <div>
-              {" "}
-              <Droppable droppableId="characters">
-                {(provided) => (
-                  <ul
-                    className="characters"
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    <Row rows={rows} />
-                    {/* {provided.placeholder} */}
-                  </ul>
-                )}
-              </Droppable>
-            </div>
-          </section>
+      <button type="button" onClick={handleRowAdd} className="btn">
+        Add new item
+      </button>
+      <div
+        style={{
+          display: "flex",
+          flexBasis: "80%",
+          flexGrow: 0,
+          flexShrink: 0,
+          backgroundColor: "rgb(239, 236, 236)",
+        }}
+      >
+        <DragDropContext onDragEnd={onDragEnd}>
+          {state.map((el, ind) => (
+            <Droppable key={ind} droppableId={`${ind}`}>
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  style={{ flexBasis: "50%", flexGrow: 0, flexShrink: 0 }}
+                >
+                  <div>
+                    <h1>{ind == 1 ? "Trash" : "Rows"}</h1>
+                    {el.map((item, index) => (
+                      <Draggable
+                        key={item.id}
+                        draggableId={item.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <div
+                              className="item"
+                              onClick={() => handleItemClick(item)}
+                            >
+                              {item.content}
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Droppable>
+          ))}
         </DragDropContext>
-      </header>
+      </div>
     </div>
   );
 }
